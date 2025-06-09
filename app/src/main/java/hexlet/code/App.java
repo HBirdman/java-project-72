@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class App {
-
     private static TemplateEngine createTemplateEngine() {
         ClassLoader classLoader = App.class.getClassLoader();
         ResourceCodeResolver codeResolver = new ResourceCodeResolver("templates", classLoader);
