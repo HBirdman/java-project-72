@@ -36,11 +36,11 @@ public class UrlsController {
             ctx.redirect(NamedRoutes.urlsPath());
         } catch (ValidationException e) {
             BuildUrlPage page = new BuildUrlPage(stringUrl, e.getErrors());
-            ctx.render("index.jte", model("page", page));
+            ctx.render("index.jte", model("page", page)).status(422);
         } catch (SQLException e) {
             BuildUrlPage page = new BuildUrlPage(stringUrl, null);
             page.setFlash(e.getMessage());
-            ctx.render("index.jte", model("page", page));
+            ctx.render("index.jte", model("page", page)).status(422);
         }
     }
 
