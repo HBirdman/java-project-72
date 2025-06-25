@@ -4,16 +4,20 @@ import hexlet.code.dto.urls.BuildUrlPage;
 import hexlet.code.dto.urls.UrlPage;
 import hexlet.code.dto.urls.UrlsPage;
 import hexlet.code.model.Url;
+import hexlet.code.model.UrlCheck;
+import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.repository.UrlRepository;
 import hexlet.code.util.NamedRoutes;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 import io.javalin.validation.ValidationException;
-
+import kong.unirest.core.Unirest;
 import java.net.URI;
 import java.net.URL;
 import java.sql.SQLException;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 import static io.javalin.rendering.template.TemplateUtil.model;
 
 public class UrlsController {
@@ -45,7 +49,18 @@ public class UrlsController {
     }
 
     public static void index(Context ctx) throws SQLException {
-        UrlsPage page = new UrlsPage(UrlRepository.getEntities());
+        UrlsPage page = new UrlsPage();
+        List<Url> urls = UrlRepository.getEntities();
+        List<UrlCheck> urlChecks = new ArrayList<>();
+        for (var url : urls) {
+            try {
+                urlChecks.add(UrlCheckRepository.getEntities(url.getId()).getLast());
+            } catch (NoSuchElementException e) {
+                urlChecks.add(new UrlCheck());
+            }
+        }
+        page.setUrls(urls);
+        page.setUrlChecks(urlChecks);
         page.setFlash(ctx.consumeSessionAttribute("flash"));
         ctx.render("urls/index.jte", model("page", page));
     }
@@ -55,6 +70,23 @@ public class UrlsController {
         Url url = UrlRepository.find(id)
                 .orElseThrow(() -> new NotFoundResponse("URL not found"));
         var page = new UrlPage(url);
+        List<UrlCheck> urlChecks = UrlCheckRepository.getEntities(id);
+        page.setUrlChecks(urlChecks);
+        ctx.render("urls/show.jte", model("page", page));
+    }
+
+    public static void check(Context ctx) throws SQLException {
+        Long urlId = ctx.pathParamAsClass("id", Long.class).get();
+        Url url = UrlRepository.find(urlId)
+                .orElseThrow(() -> new NotFoundResponse("URL not found"));
+        int status = Unirest.get(url.getName()).asString().getStatus();
+        UrlCheck urlCheck = new UrlCheck();
+        urlCheck.setStatusCode(status);
+        urlCheck.setUrlId(urlId);
+        UrlCheckRepository.save(urlCheck);
+        List<UrlCheck> urlChecks = UrlCheckRepository.getEntities(urlId);
+        UrlPage page = new UrlPage(url);
+        page.setUrlChecks(urlChecks);
         ctx.render("urls/show.jte", model("page", page));
     }
 }
