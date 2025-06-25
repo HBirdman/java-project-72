@@ -19,10 +19,12 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.7
+
       - run: make lint
       - run: make test
+
       - name: Publish code coverage
         uses: qltysh/qlty-action/coverage@v1
         with:
-          coverage-token: ${{secrets.CC_TEST_REPORTER_ID}}
-          files: build/reports/jacoco/test/jacocoTestReport.xml:jacoco
+          token: ${{secrets.CC_TEST_REPORTER_ID}}
+          files: ${{github.workspace}}/app/build/reports/jacoco/test/jacocoTestReport.xml:jacoco
