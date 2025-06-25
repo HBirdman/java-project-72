@@ -10,9 +10,9 @@ CREATE TABLE urls (
 CREATE TABLE url_checks (
     id SERIAL PRIMARY KEY,
     url_id SERIAL REFERENCES urls NOT NULL,
-    status_code BIGINT NOT NULL,
+    status_code BIGINT,
     title VARCHAR(255),
     h1 VARCHAR(255),
-    description text,
+    description TEXT,
     created_at TIMESTAMP NOT NULL
 );

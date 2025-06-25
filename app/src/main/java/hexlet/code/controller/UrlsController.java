@@ -11,7 +11,10 @@ import hexlet.code.util.NamedRoutes;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 import io.javalin.validation.ValidationException;
+import kong.unirest.core.HttpResponse;
 import kong.unirest.core.Unirest;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import java.net.URI;
 import java.net.URL;
 import java.sql.SQLException;
@@ -79,9 +82,19 @@ public class UrlsController {
         Long urlId = ctx.pathParamAsClass("id", Long.class).get();
         Url url = UrlRepository.find(urlId)
                 .orElseThrow(() -> new NotFoundResponse("URL not found"));
-        int status = Unirest.get(url.getName()).asString().getStatus();
+        HttpResponse<String> stringHttpResponse = Unirest.get(url.getName()).asString();
+        String body = stringHttpResponse.getBody();
+        Document doc = Jsoup.parse(body);
+
+        String title = doc.title();
+        String h1 = doc.select("h1").text();
+        String description = doc.select("meta[name=description]").attr("content");
+        int statusCode = stringHttpResponse.getStatus();
         UrlCheck urlCheck = new UrlCheck();
-        urlCheck.setStatusCode(status);
+        urlCheck.setStatusCode(statusCode);
+        urlCheck.setTitle(title);
+        urlCheck.setH1(h1);
+        urlCheck.setDescription(description);
         urlCheck.setUrlId(urlId);
         UrlCheckRepository.save(urlCheck);
         List<UrlCheck> urlChecks = UrlCheckRepository.getEntities(urlId);

@@ -10,13 +10,18 @@ import java.util.List;
 
 public class UrlCheckRepository extends BaseRepository {
     public static void save(UrlCheck urlCheck) throws SQLException {
-        String sql = "INSERT INTO url_checks (url_id, status_code, created_at) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO url_checks "
+                + "(url_id, status_code, title, h1, description, created_at) VALUES (?, ?, ?, ?, ?, ?)";
         try (var conn = dataSource.getConnection();
              var preparedStatement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            LocalDateTime createdAt = LocalDateTime.now();
             preparedStatement.setLong(1, urlCheck.getUrlId());
             preparedStatement.setInt(2, urlCheck.getStatusCode());
-            var createdAt = LocalDateTime.now();
-            preparedStatement.setTimestamp(3, Timestamp.valueOf(createdAt));
+            preparedStatement.setString(3, urlCheck.getTitle());
+            preparedStatement.setString(4, urlCheck.getH1());
+            preparedStatement.setString(5, urlCheck.getDescription());
+            preparedStatement.setTimestamp(6, Timestamp.valueOf(createdAt));
+
             preparedStatement.executeUpdate();
             var generatedKeys = preparedStatement.getGeneratedKeys();
             if (generatedKeys.next()) {
@@ -36,13 +41,20 @@ public class UrlCheckRepository extends BaseRepository {
             var resultSet = stmt.executeQuery();
             var result = new ArrayList<UrlCheck>();
             while (resultSet.next()) {
-                var id = resultSet.getLong("id");
-                var statusCode = resultSet.getInt("status_code");
+                Long id = resultSet.getLong("id");
+                int statusCode = resultSet.getInt("status_code");
+                String title = resultSet.getString("title");
+                String h1 = resultSet.getString("h1");
+                String description = resultSet.getString("description");
                 var createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
 
                 var urlCheck = new UrlCheck();
                 urlCheck.setId(id);
+                urlCheck.setUrlId(urlId);
                 urlCheck.setStatusCode(statusCode);
+                urlCheck.setTitle(title);
+                urlCheck.setH1(h1);
+                urlCheck.setDescription(description);
                 urlCheck.setCreatedAt(createdAt);
                 result.add(urlCheck);
             }
