@@ -25,6 +25,8 @@ jobs:
 
       - name: Publish code coverage
         uses: qltysh/qlty-action/coverage@v1
+        env:
+          JACOCO_SOURCE_PATH: app/src/main/java
         with:
           token: ${{secrets.CC_TEST_REPORTER_ID}}
           files: ${{github.workspace}}/app/build/reports/jacoco/test/jacocoTestReport.xml:jacoco
