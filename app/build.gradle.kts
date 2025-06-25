@@ -35,6 +35,7 @@ dependencies {
     implementation("io.javalin:javalin-rendering:6.6.0")
     implementation("org.postgresql:postgresql:42.7.7")
     implementation("com.konghq:unirest-java-core:4.4.7")
+    implementation("org.jsoup:jsoup:1.21.1")
 
     testImplementation("org.assertj:assertj-core:3.27.3")
     testImplementation(platform("org.junit:junit-bom:5.12.2"))
