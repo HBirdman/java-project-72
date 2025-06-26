@@ -1,7 +1,6 @@
 package hexlet.code;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 import hexlet.code.model.UrlCheck;
 import hexlet.code.repository.UrlCheckRepository;
 import hexlet.code.util.NamedRoutes;
@@ -9,7 +8,6 @@ import hexlet.code.model.Url;
 import hexlet.code.repository.UrlRepository;
 import io.javalin.Javalin;
 import io.javalin.testtools.JavalinTest;
-import okhttp3.Response;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
@@ -98,15 +96,18 @@ public class AppTest {
         Long id = url.getId();
 
         JavalinTest.test(app, (server, client) -> {
-            Response response = client.post(NamedRoutes.urlCheck(id));
-
+            var response = client.post(NamedRoutes.urlCheck(id));
             assertThat(response.code()).isEqualTo(200);
 
-            List<UrlCheck> checkResult = UrlCheckRepository.getEntities(id);
-            assertThat(checkResult).isNotEmpty();
+            List<UrlCheck> urlChecks = UrlCheckRepository.getEntities();
+            assertThat(urlChecks).isNotEmpty();
 
-            UrlCheck urlCheck = checkResult.getFirst();
+            UrlCheck urlCheck = urlChecks.getFirst();
             assertThat(urlCheck.getStatusCode()).isEqualTo(200);
+//            assertThat(urlCheck.getTitle()).isEqualTo("Page analyzer project");
+            assertThat(urlCheck.getH1()).isEqualTo("Список добавленных URL");
+            assertThat(urlCheck.getDescription()).isEqualTo("Expected description");
+            assertThat(urlCheck.getUrlId()).isEqualTo(id);
         });
     }
 }

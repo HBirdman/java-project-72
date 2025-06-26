@@ -1,5 +1,4 @@
 package hexlet.code.dto.urls;
-
 import hexlet.code.dto.BasePage;
 import io.javalin.validation.ValidationError;
 import java.util.List;

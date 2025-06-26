@@ -32,12 +32,9 @@
         </nav>
 
         @if(page != null && page.getFlash() != null)
-            <div class="alert mb-3" role="alert">
+            <div class="alert alert-${page.getFlashType()}" role="alert">
                 ${page.getFlash()}
             </div>
-<%--            <div class="alert alert-${page.getFlashType()}" role="alert">--%>
-<%--                ${page.getFlash()}--%>
-<%--            </div>--%>
         @endif
 
         <div class="mx-auto p-4 py-md-5">

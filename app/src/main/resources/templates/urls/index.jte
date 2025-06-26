@@ -1,4 +1,5 @@
 @import hexlet.code.dto.urls.UrlsPage
+@import hexlet.code.model.Url
 @import hexlet.code.util.NamedRoutes
 @param UrlsPage page
 
@@ -18,21 +19,26 @@ content = @`
                             <td>Код ответа</td>
                         </thead>
                         <tbody>
-                            @for(int i = 0; i < page.getUrls().size(); i++)
-                                    <tr>
-                                        <td>
-                                            ${page.getUrls().get(i).getId()}
-                                        </td>
-                                        <td>
-                                            <a href="${NamedRoutes.urlPath(page.getUrls().get(i).getId())}">${page.getUrls().get(i).getName()}</a>
-                                        </td>
-                                        <td>
-                                            ${String.valueOf(page.getUrlChecks().get(i).getCreatedAt())}
-                                        </td>
-                                        <td>
-                                            ${page.getUrlChecks().get(i).getStatusCode()}
-                                        </td>
-                                    </tr>
+                            @for(Url url : page.getUrls())
+                                <tr>
+                                    <td>
+                                        ${url.getId()}
+                                    </td>
+                                    <td>
+                                        <a href="${NamedRoutes.urlPath(url.getId())}">${url.getName()}</a>
+                                    </td>
+                                    @if(page.getCheckMap().containsKey(url.getId()))
+                                            <td>
+                                                ${String.valueOf(page.getCheckMap().get(url.getId()).getCreatedAt())}
+                                            </td>
+                                            <td>
+                                                ${page.getCheckMap().get(url.getId()).getStatusCode()}
+                                            </td>
+                                    @else
+                                        <td>-</td>
+                                        <td>-</td>
+                                    @endif
+                                </tr>
                             @endfor
                         </tbody>
                     </table>

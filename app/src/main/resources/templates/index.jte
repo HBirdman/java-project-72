@@ -6,7 +6,7 @@
     page = page,
     content = @`
         @if(page != null && page.getErrors() != null)
-            <div class="mb-3">
+            <div class="alert alert-warning" role="alert">
                 <ul>
                     @for(var validator : page.getErrors().values())
                         @for(var error : validator)

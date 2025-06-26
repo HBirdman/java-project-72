@@ -33,7 +33,7 @@ public class UrlCheckRepository extends BaseRepository {
         }
     }
 
-    public static List<UrlCheck> getEntities(Long urlId) throws SQLException {
+    public static List<UrlCheck> find(Long urlId) throws SQLException {
         String sql = "SELECT * FROM url_checks WHERE url_id = ?";
         try (var conn = dataSource.getConnection();
              var stmt = conn.prepareStatement(sql)) {
@@ -42,6 +42,36 @@ public class UrlCheckRepository extends BaseRepository {
             var result = new ArrayList<UrlCheck>();
             while (resultSet.next()) {
                 Long id = resultSet.getLong("id");
+                int statusCode = resultSet.getInt("status_code");
+                String title = resultSet.getString("title");
+                String h1 = resultSet.getString("h1");
+                String description = resultSet.getString("description");
+                var createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
+
+                var urlCheck = new UrlCheck();
+                urlCheck.setId(id);
+                urlCheck.setUrlId(urlId);
+                urlCheck.setStatusCode(statusCode);
+                urlCheck.setTitle(title);
+                urlCheck.setH1(h1);
+                urlCheck.setDescription(description);
+                urlCheck.setCreatedAt(createdAt);
+                result.add(urlCheck);
+            }
+            resultSet.close();
+            return result;
+        }
+    }
+
+    public static List<UrlCheck> getEntities() throws SQLException {
+        String sql = "SELECT * FROM url_checks";
+        try (var conn = dataSource.getConnection();
+             var stmt = conn.prepareStatement(sql)) {
+            var resultSet = stmt.executeQuery();
+            var result = new ArrayList<UrlCheck>();
+            while (resultSet.next()) {
+                Long id = resultSet.getLong("id");
+                Long urlId = resultSet.getLong("url_id");
                 int statusCode = resultSet.getInt("status_code");
                 String title = resultSet.getString("title");
                 String h1 = resultSet.getString("h1");
