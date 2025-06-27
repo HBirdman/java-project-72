@@ -59,14 +59,10 @@ public class UrlsController {
     public static void index(Context ctx) throws SQLException {
         UrlsPage page = new UrlsPage();
         List<Url> urls = UrlRepository.getEntities();
-        List<UrlCheck> urlChecks = UrlCheckRepository.getEntities();
+        List<UrlCheck> urlChecks = UrlCheckRepository.getLatestChecks();
         Map<Long, UrlCheck> checkMap = new HashMap<>(Map.of());
-        for (var url : urls) {
-            if (urlChecks.stream().anyMatch(u -> u.getUrlId().equals(url.getId()))) {
-                checkMap.put(url.getId(), urlChecks.stream()
-                        .filter(u -> u.getUrlId().equals(url.getId()))
-                        .reduce((a, b) -> b).get());
-            }
+        for (var check : urlChecks) {
+            checkMap.put(check.getUrlId(), check);
         }
         page.setUrls(urls);
         page.setCheckMap(checkMap);
@@ -91,34 +87,31 @@ public class UrlsController {
         Long urlId = ctx.pathParamAsClass("id", Long.class).get();
         Url url = UrlRepository.find(urlId)
                 .orElseThrow(() -> new NotFoundResponse("URL not found"));
-        HttpResponse<String> stringHttpResponse = null;
+        HttpResponse<String> stringHttpResponse;
+        String body;
+        int statusCode = 400;
+        String title = "";
+        String h1 = "";
+        String description = "";
         try {
             stringHttpResponse = Unirest.get(url.getName()).asString();
+            body = stringHttpResponse.getBody();
+            statusCode = stringHttpResponse.getStatus();
+            Document doc = Jsoup.parse(body);
+            title = doc.select("title").text();
+            h1 = doc.select("h1").text();
+            description = doc.select("meta[name=description]").attr("content");
         } catch (UnirestException e) {
             ctx.sessionAttribute("flash", "Ошибка получения ответа от сайта");
             ctx.sessionAttribute("flash-type", "warning");
             ctx.redirect(NamedRoutes.urlPath(urlId));
-        }
-        String body = "";
-        int statusCode = 400;
-        try {
-            body = stringHttpResponse.getBody();
-            statusCode = stringHttpResponse.getStatus();
+            return;
         } catch (NullPointerException e) {
             ctx.sessionAttribute("flash", "Ошибка парсинга ответа");
             ctx.sessionAttribute("flash-type", "warning");
             ctx.redirect(NamedRoutes.urlPath(urlId));
         }
-        Document doc = Jsoup.parse(body);
-        String title = doc.title();
-        String h1 = doc.select("h1").text();
-        String description = doc.select("meta[name=description]").attr("content");
-        UrlCheck urlCheck = new UrlCheck();
-        urlCheck.setStatusCode(statusCode);
-        urlCheck.setTitle(title);
-        urlCheck.setH1(h1);
-        urlCheck.setDescription(description);
-        urlCheck.setUrlId(urlId);
+        UrlCheck urlCheck = new UrlCheck(statusCode, title, h1, description, urlId);
         UrlCheckRepository.save(urlCheck);
         List<UrlCheck> urlChecks = UrlCheckRepository.find(urlId);
         UrlPage page = new UrlPage(url);

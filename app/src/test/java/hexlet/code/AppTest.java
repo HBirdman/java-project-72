@@ -104,7 +104,7 @@ public class AppTest {
 
             UrlCheck urlCheck = urlChecks.getFirst();
             assertThat(urlCheck.getStatusCode()).isEqualTo(200);
-//            assertThat(urlCheck.getTitle()).isEqualTo("Page analyzer project");
+            assertThat(urlCheck.getTitle()).isEqualTo("Page analyzer project");
             assertThat(urlCheck.getH1()).isEqualTo("Список добавленных URL");
             assertThat(urlCheck.getDescription()).isEqualTo("Expected description");
             assertThat(urlCheck.getUrlId()).isEqualTo(id);
