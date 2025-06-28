@@ -28,7 +28,7 @@ public class UrlRepository extends BaseRepository {
         }
     }
 
-    public static Optional<Url> find(Long id) throws SQLException {
+    public static Optional<Url> findById(Long id) throws SQLException {
         String sql = "SELECT * FROM urls WHERE id = ?";
         try (var conn = dataSource.getConnection();
                 var stmt = conn.prepareStatement(sql)) {
@@ -64,5 +64,16 @@ public class UrlRepository extends BaseRepository {
             }
             return result;
         }
+    }
+
+    public static boolean findAnyMatch(String name) throws SQLException {
+        String sql = "SELECT name FROM urls WHERE name = ?";
+        try (var conn = dataSource.getConnection();
+             var stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, name);
+            var resultSet = stmt.executeQuery();
+            return resultSet.next();
+        }
+
     }
 }
