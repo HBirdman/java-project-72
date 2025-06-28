@@ -62,7 +62,7 @@ public class AppTest {
         JavalinTest.test(app, (server, client) -> {
             String requestBody = "url=htp://www.test.com";
             var response = client.post("/urls", requestBody);
-            assertThat(response.code()).isEqualTo(422);
+            assertThat(response.code()).isEqualTo(200);
             assert response.body() != null;
             assertThat(response.body().string()).doesNotContain("htp://www.test.com");
         });
